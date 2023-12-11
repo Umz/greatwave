@@ -1,8 +1,8 @@
 <script>
 	import { readable } from 'svelte/store';
-
-	const location = "London, UK";
-
+	import { degrees, description, location, icon, fn } from "./stores";
+    import Weather from './Weather.svelte';
+	
 	const time = readable(new Date(), function start(set) {
 		const interval = setInterval(() => {
 			set(new Date());
@@ -23,41 +23,64 @@
 		}
 	);
 
+	async function handleClick(city) {
+
+		const testData = {
+			temp: 19,
+			location: city,
+			description: "Broken Clouds",
+			icon: "&#9728",
+		}
+		
+		fn.set(0);
+
+		try {
+			const response = await fetch('./fakepage');
+			if (!response.ok) {
+				throw new Error('Network response was not OK');
+			}
+			return await response.text();
+
+		} catch (error) {
+			//console.error('There has been a problem with your fetch operation:', error);
+			setReport(testData);
+			fn.set(1);
+
+			return testData;
+		}
+		
+	}
+	
+	function setReport(data) {
+		degrees.set(data.temp);
+		description.set(data.description);
+		location.set(data.location);
+		icon.set(data.icon);
+	}
+
 	//	Background of the sky-
 	//	Full page BG
 	//	Bottom 50% cover
-	
+
+	import logo from '$lib/images/gwai.webp';
+
+	const recent = ['London', 'New York', 'Tokyo'];
 
 </script>
 
 <header>
-	<p>Logo | No Nonsense, Just Weather</p>
+	
+	<p><img class='logo-img' src={logo} alt="GreatWave AI" /> | No Nonsense, Just Weather</p>
 </header>
 
-<section>
-	<div id='weather-holder'>
-		
-		<h1>{location}</h1>
+<Weather />
 
-		<div id='deg-holder'>
-			<span id='deg-number'>20<span id='deg-symbol'>&deg;C</span></span>
-		</div>
-		<div id='description'>
-			Cloudy
-		</div>
-
-		<div id='weather-symbol'>
-		    <!--&#9729;-->
-			&#9728; <!-- This is the HTML entity for the sun symbol -->
-		</div>
-
-	</div>
-</section>
 <div>
 	<p>
 		Location:
-		<b>New York</b>
-		<b>Tokyo</b>
+		{#each recent as location, i}
+			<button on:click={() => handleClick(location) }>{location}</button>
+		{/each}
 	</p>
 </div>
 
@@ -67,42 +90,17 @@
 
 <style>
 	header {
-		height: 5vh;
+		height: 2vh;
+		color: #fff;
 	}
-
-	section {
-		height: 80vh;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+	.logo-img {
+		display: inline-block;
+		height: 100%;
+		max-height: 50px;
 	}
 
 	footer {
-		height: 5vh;
-	}
-
-	#weather-holder {
-		text-align: center;
-	}
-	#deg-number {
-		font-size: 5rem;
-	}
-	#deg-symbol {
-	    font-size: 2rem;
-	    vertical-align: super;
-	}
-	#description {
-		text-transform: uppercase;
-		letter-spacing: 2px;
-	}
-
-	#weather-symbol {
-		position: absolute;
-		top: 35%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		opacity: .5;
-		font-size: 13rem;
+		height: 4vh;
 	}
 
 </style>
