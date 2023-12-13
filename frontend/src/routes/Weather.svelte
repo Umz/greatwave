@@ -1,16 +1,17 @@
 <script>
-    import { fade } from 'svelte/transition';
+    import { fade, fly } from 'svelte/transition';
     import { degrees, description, location, icon, fn } from "./stores";
 
     let subDeg = 2;
     let subLoc = "London, UK";
     let subDesc = "Cold";
-    let subIcon = "&#9728";
+    let subIcon = "04d";
 
     let showLoading = true;
     let loading = "Loading...";
+    let src = "http://openweathermap.org/img/w/04d.png";
 
-    degrees.subscribe(v => subDeg = v);
+    degrees.subscribe(v => subDeg = Math.round(v));
     description.subscribe(v => subDesc = v);
     location.subscribe(v => subLoc = v);
     icon.subscribe(v => subIcon = v);
@@ -22,12 +23,17 @@
         else if (v === 0) {
             loading = "Getting weather..";
         }
+        else {
+            //  Hack - Svelte is being unco-operative?
+            const ele = document.getElementById('wsimg');
+            if (ele) {
+                ele.src = `https://openweathermap.org/img/wn/${subIcon}@2x.png`
+            }
+        }
+
         showLoading = v <= 0;
     });
     
-    // &#9729;
-	// &#9728;
-
 </script>
 
 {#if showLoading}
@@ -38,20 +44,20 @@
 
 {:else}
 
-    <section id="weather-section" transition:fade>
+    <section id="weather-section" transition:fly>
         <div id='weather-holder'>
             
             <h1>{subLoc}</h1>
+
+            <div id='weather-symbol'>
+                <img id='wsimg' {src} alt={subDesc} />
+            </div>
 
             <div id='deg-holder'>
                 <span id='deg-number'>{subDeg}<span id='deg-symbol'>&deg;C</span></span>
             </div>
             <div id='description'>
                 <p>{subDesc}</p>
-            </div>
-
-            <div id='weather-symbol'>
-                {@html subIcon}
             </div>
 
         </div>
@@ -61,7 +67,7 @@
 
 <style>
     section {
-		height: 80vh;
+		height: 70vh;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -73,6 +79,11 @@
     }
 
     #weather-holder {
+        min-width: 260px;
+        background-color: rgba(255, 255, 255, .3);
+        padding: 25px;
+        border: 3px solid white;
+        border-radius: 20px;
 		text-align: center;
 	}
 	#deg-number {
@@ -88,11 +99,9 @@
 	}
 
 	#weather-symbol {
-		position: absolute;
-		top: 35%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		opacity: .5;
-		font-size: 13rem;
+		margin: 10px;
 	}
+    #wsimg {
+        transform: scale(2);
+    }
 </style>
