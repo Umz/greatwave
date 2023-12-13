@@ -218,5 +218,4 @@
 		background: var(--color);
 		color: #fff;
 	}
-
 </style>
