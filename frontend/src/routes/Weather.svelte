@@ -7,7 +7,7 @@
     let subDesc = "Cold";
     let subIcon = "04d";
 
-    let showLoading = true;
+    let showCard = false;
     let loading = "Loading...";
     let src = "http://openweathermap.org/img/w/04d.png";
 
@@ -24,27 +24,17 @@
             loading = "Getting weather..";
         }
         else {
-            //  Hack - Svelte is being unco-operative?
-            const ele = document.getElementById('wsimg');
-            if (ele) {
-                ele.src = `https://openweathermap.org/img/wn/${subIcon}@2x.png`
-            }
+            src = `https://openweathermap.org/img/wn/${subIcon}@2x.png`;
         }
 
-        showLoading = v <= 0;
+        showCard = v > 0;
     });
     
 </script>
 
-{#if showLoading}
+{#if showCard}
     
-    <section id="loading-section" transition:fade>
-        {loading}
-    </section>
-
-{:else}
-
-    <section id="weather-section" transition:fly>
+    <section id="weather-section" in:fly={{ x: -100, duration: 500 }} out:fly={{ x: 100, duration: 500 }}>
         <div id='weather-holder'>
             
             <h1>{subLoc}</h1>
@@ -62,8 +52,12 @@
 
         </div>
     </section>
-
+    
 {/if}
+
+<section id="loading-section" transition:fade>
+    {loading}
+</section>
 
 <style>
     section {
@@ -101,7 +95,14 @@
 	#weather-symbol {
 		margin: 10px;
 	}
+    
     #wsimg {
-        transform: scale(2);
+        transform: scale(1.5);
+        animation: scaleAnimation 4s infinite;
+    }
+    @keyframes scaleAnimation {
+        0% { transform: scale(1.5); }
+        50% { transform: scale(1.25); }
+        100% { transform: scale(1.5); }
     }
 </style>
