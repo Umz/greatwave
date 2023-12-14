@@ -1,38 +1,14 @@
 <script>
-	import { readable } from 'svelte/store';
 	import { degrees, description, location, icon, fn } from "./stores";
     import Weather from './Weather.svelte';
-	
-	const time = readable(new Date(), function start(set) {
-		const interval = setInterval(() => {
-			set(new Date());
-		}, 1000);
+	import logo from '$lib/images/gwai.webp';
 
-		return function stop() {
-			clearInterval(interval);
-		};
-	});
-
-	const formatter = new Intl.DateTimeFormat(
-		'en',
-		{
-			hour12: true,
-			hour: 'numeric',
-			minute: '2-digit',
-			second: '2-digit'
-		}
-	);
+	const recent = ['London', 'New York', 'Tokyo'];
 
 	async function selectLocation(city) {
-
-		const testData = {
-			temp: 19,
-			location: city,
-			description: "Clear Skies",
-			icon: "04d",
-		}
 		
 		fn.set(0);
+		await new Promise(resolve => setTimeout(resolve, 500));
 
 		try {
 
@@ -47,7 +23,6 @@
 			fn.set(1);
 
 		} catch (error) {
-			setReport(testData);
 			fn.set(-1);
 		}
 
@@ -61,8 +36,7 @@
 		icon.set(data.icon);
 	}
 
-	import logo from '$lib/images/gwai.webp';
-	const recent = ['London', 'New York', 'Tokyo'];
+	selectLocation('London');	//	Default London
 
 </script>
 
@@ -84,7 +58,7 @@
 				<button class='button-89' on:click={() => selectLocation(location) }>{location}</button>
 			{/each}
 		</p>
-		<p class='time-text'>{formatter.format($time)}</p>
+		<p></p>
 	</div>
 </footer>
 
@@ -127,11 +101,6 @@
 		text-transform: uppercase;
 		letter-spacing: 4px;
 		transform: translate(0, -.75rem);
-	}
-
-	.time-text {
-		font-size: .8rem;
-		font-weight: 600;
 	}
 
 	button {
